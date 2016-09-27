@@ -10,6 +10,3 @@ class SRTPCache(Base):
     cardnum = Column(Integer, primary_key=True)
     text = Column(Text, nullable=False)
     date = Column(Integer, nullable=False)
-
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)

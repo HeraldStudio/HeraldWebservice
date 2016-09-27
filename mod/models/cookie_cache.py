@@ -4,16 +4,10 @@
 # @Author  : jerry.liangj@qq.com
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
-from db import engine
-
-Base = declarative_base()
+from db import engine,Base
 
 class CookieCache(Base):
     __tablename__ = 'cookie'
     cardnum = Column(Integer, primary_key=True)
     cookie = Column(String(256), nullable=False)
     date = Column(Integer, nullable=False)
-
-
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)

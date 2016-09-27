@@ -36,3 +36,5 @@ nosetests.xml
 
 # IDEA
 *.idea
+*.log
+mod/models/db.py

@@ -16,14 +16,21 @@ from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
 from mod.emptyroom.handler import CommonQueryHandler, QuickQueryHandler,NewHandler
-from mod.lecture.noticehandler import LectureNoticeHandler
 from mod.user.handler import UserHandler
 from mod.bedRoom.handler import RoomHandler
 from mod.yuyue.handler import YuyueHandler
 
+from mod.commonHandler import read_from_cache
+
 import tornado.web
 import tornado.ioloop
 import tornado.options
+
+import json,traceback
+
+from log import getLogger
+
+log = getLogger("webservice")
 
 from tornado.options import define, options
 define('port', default=7005, help='run on the given port', type=int)
@@ -45,13 +52,12 @@ class Application(tornado.web.Application):
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
-            (r'/webserv2/lecturenotice', LectureNoticeHandler),
             (r'/webserv2/user', UserHandler),
             (r'/webserv2/query', NewHandler),
             (r'/webserv2/room',RoomHandler),
             (r'/webserv2/tice',ticeInfoHandler),
             (r'/webserv2/yuyue',YuyueHandler),
-            (r'/webserv2/[\S]+', CommonHandler)
+            (r'/webserv2/([\S]+)', CommonHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
@@ -79,7 +85,7 @@ class CommonHandler(tornado.web.RequestHandler):
             'library': self.library,
             'nic': self.nic,
             'pedetail': self.pedetail,
-            'phylab': self.phylab,
+            'phyLab': self.phylab,
             'room': self.room,
             'srtp': self.srtp
         }
@@ -88,67 +94,85 @@ class CommonHandler(tornado.web.RequestHandler):
 
     def post(self, API):
         try:
-            self.unitsmap(API)
+            self.unitsmap[API]()
         except KeyError:
             raise tornado.web.HTTPError(400)
         except Exception,e:
+            log.error("%s-%s\n%s" % (self.get_argument('cardnum', default = None), API, traceback.print_exc()))
             retjson = {"code":500,"content":str(e)}
             self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            self.finish()
 
     def card(self):
         cardnum = self.get_argument('cardnum', default = None)
         password = self.get_argument('password', default = None)
         timedelta = self.get_argument('timedelta', default = 0)
         retjson = read_from_cache(self.db,"card", cardnum, password, {"timedelta":timedelta})
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def srtp(self):
         number = self.get_argument('number', default=None)
         retjson = read_from_cache(self.db,"srtp", number)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
-
+        self.write(retjson)
+        self.finish()
+        
     def exam(self):
         cardnum = self.get_argument('cardnum', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"exam", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def gpa(self):
         cardnum = self.get_argument('username', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"gpa", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def lecture(self):
         cardnum = self.get_argument('cardnum', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"lecture", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
+
+    def library(self):
+        cardnum = self.get_argument('cardnum', default = None)
+        password = self.get_argument('password', default = None)
+        retjson = read_from_cache(self.db,"library", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
     def nic(self):
         cardnum = self.get_argument('cardnum', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"nic", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def pedetail(self):
         cardnum = self.get_argument('cardnum', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"pedetail", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def phylab(self):
         cardnum = self.get_argument('number', default = None)
         password = self.get_argument('password', default = None)
         term = self.get_argument('term', default = None)
         retjson = read_from_cache(self.db,"phylab", cardnum, password, {"term":term})
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
 
     def room(self):
         cardnum = self.get_argument('number', default = None)
         password = self.get_argument('password', default = None)
         retjson = read_from_cache(self.db,"room", cardnum, password)
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
+        self.finish()
     
     
 

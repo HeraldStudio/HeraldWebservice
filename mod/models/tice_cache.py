@@ -4,9 +4,7 @@
 # @Author  : jerry.liangj@qq.com
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from db import engine
-
-Base = declarative_base()
+from db import engine, Base
 
 class TiceCache(Base):
     __tablename__ = 'tice'
@@ -14,6 +12,3 @@ class TiceCache(Base):
     text = Column(String(4096), nullable=False)
     date = Column(Integer, nullable=False)
 
-
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)
