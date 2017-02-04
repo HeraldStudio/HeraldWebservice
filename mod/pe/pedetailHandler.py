@@ -2,19 +2,20 @@
 # @Date    : 2016-02-21 15:43:36
 # @Author  : jerry.liangj@qq.com
 
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPError
+import base64
 import json
-import tornado.web
-import tornado.gen
 import urllib
 from sgmllib import SGMLParser
+from time import time
+
+import tornado.gen
+import tornado.web
+from sqlalchemy.orm.exc import NoResultFound
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPError
 
 from config import loginurl1,runurl
+from mod.models.mysql.pe_models import PeDetailCache
 
-import base64
-from sqlalchemy.orm.exc import NoResultFound
-from ..models.pe_models import PeDetailCache
-from time import time,localtime, strftime
 
 class RunningParser(SGMLParser):
     def __init__(self):

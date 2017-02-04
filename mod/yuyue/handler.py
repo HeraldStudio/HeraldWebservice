@@ -2,17 +2,18 @@
 # @Date    : 2016-03-24 16 16:34:57
 # @Author  : jerry.liangj@qq.com
 
-from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
-from tornado.httputil import url_concat
-from sqlalchemy.orm.exc import NoResultFound
-import tornado.web
-from tornado.web import MissingArgumentError
+import json
+import urllib
+
 import tornado.gen
-import urllib, json
-from ..models.cookie_cache import CookieCache
+import tornado.web
+from tornado.httpclient import HTTPRequest, HTTPClient
+from tornado.httputil import url_concat
+from tornado.web import MissingArgumentError
+
+from config import *
 from ..auth.cookie import getCookie
-import traceback
+
 
 class YuyueHandler(tornado.web.RequestHandler):
 

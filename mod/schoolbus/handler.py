@@ -4,7 +4,7 @@
 # @Author  : yml_bright@163.com
 
 import tornado.web
-from ..models.data_cache import DataCache
+#from ..models.data_cache import DataCache
 from sqlalchemy.orm.exc import NoResultFound
 import json, base64
 

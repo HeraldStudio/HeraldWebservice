@@ -1,3 +1,14 @@
+
+
+# 数据库文件
+mod/models/mysql/db.py
+
+# IDEA配置文件
+HeraldWebservice.iml
+
+# Pyhton环境配置
+venv
+
 *.py[cod]
 *.pyc
 # C extensions
@@ -37,4 +48,4 @@ nosetests.xml
 # IDEA
 *.idea
 *.log
-mod/models/db.py
+mod/models/mysql/db.py

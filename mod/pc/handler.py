@@ -3,20 +3,24 @@
 # @Date    : 2015-10-26 14:46:50
 # @Author  : jerry.liangj@qq.com
 
-from config import *
-from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
-from BeautifulSoup import BeautifulSoup
-import tornado.web
-import tornado.gen
-from ..models.pc_cache import PCCache
-from sqlalchemy.orm.exc import NoResultFound
-from time import time, localtime, strftime
-import datetime
-import urllib, re
-import json
 import base64
-import rsa,tea,traceback
-import os, hashlib, re, tempfile, binascii, base64
+import binascii
+import datetime
+import hashlib
+import json
+import re
+import urllib
+from time import time, localtime, strftime
+
+import rsa
+import tea
+import tornado.gen
+from sqlalchemy.orm.exc import NoResultFound
+from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
+
+from config import *
+from mod.models.mysql.pc_cache import PCCache
+
 
 class PCHandler(tornado.web.RequestHandler):
 

@@ -2,15 +2,19 @@
 # @Date    : 2015-03-19 16 16:34:57
 # @Author  : yml_bright@163.com
 
-from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
-from ..models.user_detail import UserDetail
+import json
+import urllib
+
+import tornado.gen
+import tornado.web
 from BeautifulSoup import BeautifulSoup
 from sqlalchemy.orm.exc import NoResultFound
-import tornado.web
-import tornado.gen
-import urllib, json
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
+
+from config import *
+from mod.models.mysql.user_detail import UserDetail
 from ..auth.handler import authApi
+
 
 class UserHandler(tornado.web.RequestHandler):
 

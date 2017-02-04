@@ -3,12 +3,13 @@
 # @Date    : 2015-03-13 18:23:11
 # @Author  : yml_bright@163.com
 
-import mod.models.db
-
-from datetime import date as datelib, timedelta
-import config
-import MySQLdb
 import copy
+from datetime import date as datelib
+
+import MySQLdb
+
+import config
+import mod.models.mysql.db
 
 # 所有教室的列表
 classrooms = None
@@ -96,7 +97,7 @@ def filter_quick(campus, today_or_tomorrow, start_lesson, end_lesson):
 # @brief 获取所有教室列表的方法
 def get_classroom_list():
     connection = MySQLdb.connect(
-        host=mod.models.db.DB_HOST, user=mod.models.db.DB_USER, passwd=mod.models.db.DB_PWD, db=mod.models.db.DB_NAME, charset='utf8')
+        host=mod.models.mysql.db.DB_HOST, user=mod.models.mysql.db.DB_USER, passwd=mod.models.mysql.db.DB_PWD, db=mod.models.mysql.db.DB_NAME, charset='utf8')
     cursor = connection.cursor()
 
     global classrooms
@@ -123,7 +124,7 @@ def get_free_classrooms(campus, week, date, start_lesson, end_lesson):
 
     try:
         connection = MySQLdb.connect(
-            host=mod.models.db.DB_HOST, user=mod.models.db.DB_USER, passwd=mod.models.db.DB_PWD, db=mod.models.db.DB_NAME, charset='utf8')
+            host=mod.models.mysql.db.DB_HOST, user=mod.models.mysql.db.DB_USER, passwd=mod.models.mysql.db.DB_PWD, db=mod.models.mysql.db.DB_NAME, charset='utf8')
         cursor = connection.cursor()
 
         rtn_classrooms = copy.deepcopy(classrooms)

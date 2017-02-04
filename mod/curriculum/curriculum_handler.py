@@ -5,7 +5,7 @@ from BeautifulSoup import BeautifulSoup
 from config import CURR_URL, TIME_OUT,TERM_URL,JWC_URL
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from collections import OrderedDict
-from ..models.curriculum_cookie import Curriculum_CookieCache
+#from mod.models.curriculum_cookie import Curriculum_CookieCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time
 import tornado.web

@@ -2,14 +2,14 @@
 # @Date    : 2016-03-24 16 16:34:57
 # @Author  : jerry.liangj@qq.com
 
-import time,json
-import urllib
-from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
-from ..models.cookie_cache import CookieCache
+import time
+
 from sqlalchemy.orm.exc import NoResultFound
+
 from config import *
-from newHandler import newAuthApi
 from handler import authApi
+from mod.models.mysql.cookie_cache import CookieCache
+
 
 def getCookie(db,cardnum,card_pwd):
 	state = 1

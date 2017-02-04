@@ -3,16 +3,18 @@
 # @Date    : 2014-12-12 18:17:20
 # @Author  : yml_bright@163.com
 
-from BeautifulSoup import BeautifulSoup
-from config import JWC_URL, TIME_OUT
-from tornado.httpclient import HTTPRequest, HTTPClient
-import tornado.web
-import tornado.gen
-from ..models.jwc_cache import JWCCache
-from sqlalchemy.orm.exc import NoResultFound
+import base64
+import json
 from time import time, localtime, strftime
-import json, base64
-import urllib,traceback,os
+
+import tornado.gen
+from BeautifulSoup import BeautifulSoup
+from sqlalchemy.orm.exc import NoResultFound
+from tornado.httpclient import HTTPRequest, HTTPClient
+
+from config import JWC_URL, TIME_OUT
+from mod.models.mysql.jwc_cache import JWCCache
+
 
 class JWCHandler(tornado.web.RequestHandler):
 

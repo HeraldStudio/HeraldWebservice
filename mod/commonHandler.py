@@ -3,122 +3,122 @@
 # @Date    : 2016-09-23 09:51:00
 # @Author  : jerry.liangj@qq.com
 
-from sqlalchemy.orm.exc import NoResultFound
-from time import time
-import json,traceback
+import json, traceback
+import tornado
+from log import getLogger
+from utils.RedisUtils import read_from_cache
 
-from mod.models.redis_db import redis_job,redis_cache
+log = getLogger("webservice")
 
-from mod.models.card_cache import CardCache
-from mod.models.exam_cache import ExamCache
-from mod.models.gpa_cache import GpaCache
-from mod.models.lecture_cache import LectureCache
-from mod.models.library_cache import ListLibrary
-from mod.models.jwc_cache import JWCCache
-from mod.models.nic_cache import NicCache
-from mod.models.pe_models import PeDetailCache
-from mod.models.phylab_cache import PhylabCache
-from mod.models.room_cache import RoomCache
-from mod.models.srtp_cache import SRTPCache
-from mod.models.user_detail import UserDetail
+class CommonHandler(tornado.web.RequestHandler):
+    """api查询
+       CommonHandler中的api均通过爬虫队列进行获取
+    """
 
+    @property
+    def db(self):
+        return self.application.db
 
+    def on_finish(self):
+        self.db.close()
 
-API_JOB_KEY = "api"
+    @property
+    def unitsmap(self):
+        return {
+            'card': self.card,
+            'exam': self.exam,
+            'gpa': self.gpa,
+            'lecture': self.lecture,
+            'library': self.library,
+            'nic': self.nic,
+            'pedetail': self.pedetail,
+            'phyLab': self.phylab,
+            'room': self.room,
+            'srtp': self.srtp
+        }
 
-API_JOB_SET_KEY = "api_set"
+    def get(self, API):
+        self.write('Herald Web Service')
 
-cacheMap = {
-		'card': CardCache,
-		'exam': ExamCache,
-		'gpa': GpaCache,
-		'lecture': LectureCache,
-		'library': ListLibrary,
-		'jwc': JWCCache,
-		'nic': NicCache,
-		'pedetail': PeDetailCache,
-		'phylab': PhylabCache,
-		'room': RoomCache,
-		'srtp': SRTPCache,
-		'user': UserDetail
-	}
+    def post(self, API):
+        try:
+            self.unitsmap[API]()
+        except KeyError:
+            self.write("This is an error request, Check!!!")
+            # raise tornado.web.HTTPError(400)       # 防止向客户端返回详细错误
+        except Exception, e:
+            log.error("%s-%s\n%s" % (self.get_argument('cardnum', default=None), API, traceback.print_exc()))
+            retjson = {"code": 500, "content": str(e)}
+            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            self.finish()
 
-def common_generate_key(api_name,cardnum,param={}):
-	return (cardnum + "-" + api_name,cardnum)
+    def card(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        timedelta = self.get_argument('timedelta', default=0)
+        retjson = read_from_cache(self.db, "card", cardnum, password, {"timedelta": timedelta})
+        self.write(retjson)
+        self.finish()
 
-def card_generate_key(api_name,cardnum,param):
-	return (cardnum + "-" + api_name + "-" + param["timedelta"], cardnum + param["timedelta"])
+    def srtp(self):
+        number = self.get_argument('number', default=None)
+        retjson = read_from_cache(self.db, "srtp", number)
+        self.write(retjson)
+        self.finish()
 
-GenerateKeyMap = {
-		'card': card_generate_key,
-		'exam': common_generate_key,
-		'gpa': common_generate_key,
-		'lecture': common_generate_key,
-		'library': common_generate_key,
-		'jwc': common_generate_key,
-		'nic': common_generate_key,
-		'pedetail': common_generate_key,
-		'phylab': common_generate_key,
-		'room': common_generate_key,
-		'srtp': common_generate_key,
-		'user': common_generate_key
-	}
+    def exam(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "exam", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
-def read_from_redis_db(key):
-	temp = redis_cache.get(key)
-	if temp:
-		return json.loads(temp)
-	else:
-		return None
+    def gpa(self):
+        cardnum = self.get_argument('username', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "gpa", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
-# if read from mysql return data even thought timeout beacuse of no cache
-def read_from_mysql_db(db, api_name, cardnum, password, cache_key):
-	cacheDb = cacheMap[api_name]
-	try:
-		cache_instance = db.query(cacheDb).filter(cacheDb.cardnum == cache_key).one()
-		return cache_instance.text
-	except NoResultFound:
-		pass
+    def lecture(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "lecture", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
-def read_from_cache(db, api_name, cardnum, password=None, param={}):
-	retjson = {'code': 201,'content': 'refresh'}
-	key = GenerateKeyMap[api_name](api_name, cardnum, param)
-	redis_db_cache = read_from_redis_db(key[0])
-	if redis_db_cache:
-		return json.dumps(redis_db_cache, ensure_ascii=False, indent=2)
-	mysql_db_cache = read_from_mysql_db(db, api_name, cardnum, password, key[1])
-	if mysql_db_cache:
-		return json.dumps(json.loads(mysql_db_cache), ensure_ascii=False, indent=2)
-	push_to_crawler_queue(api_name, cardnum, password, param)
-	return json.dumps(retjson, ensure_ascii=False, indent=2)
+    def library(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "library", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
-'''
-crawler queue data format
-	{
-		"api": "room",
-		"cardnum": cardnum,
-		"password": password
-	}
-	{
-		"api": "card",
-		"cardnum": cardnum,
-		"password": password,
-		"param": {
-			"timedelta": 1
-		}
-	}
-'''
-def push_to_crawler_queue(api_name, cardnum, password, param={}):
-	data = json.dumps({
-		"api": api_name,
-		"cardnum": cardnum,
-		"password": password,
-		"param": param
-	})
-	if redis_job.sismember(API_JOB_SET_KEY, data):
-		return
-	else:
-		redis_job.sadd(API_JOB_SET_KEY, data)
-		redis_job.rpush(API_JOB_KEY, data)
+    def nic(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "nic", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
+    def pedetail(self):
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "pedetail", cardnum, password)
+        self.write(retjson)
+        self.finish()
 
+    def phylab(self):
+        cardnum = self.get_argument('number', default=None)
+        password = self.get_argument('password', default=None)
+        term = self.get_argument('term', default=None)
+        retjson = read_from_cache(self.db, "phylab", cardnum, password, {"term": term})
+        self.write(retjson)
+        self.finish()
+
+    def room(self):
+        cardnum = self.get_argument('number', default=None)
+        password = self.get_argument('password', default=None)
+        retjson = read_from_cache(self.db, "room", cardnum, password)
+        self.write(retjson)
+        self.finish()

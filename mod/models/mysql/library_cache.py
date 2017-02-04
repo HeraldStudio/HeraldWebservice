@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, Integer,Text
 from db import engine, Base
 
 class ListLibrary(Base):
-    __tablename__ = 'library_cache'
+    __tablename__ = 'library'
     cardnum = Column(Integer, primary_key=True)
     text = Column(Text)
     date = Column(Integer, nullable=False)
